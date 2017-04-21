@@ -1,2 +1,1 @@
-# senor-rosado
-Señor Rosado
+# Señor Rosado
