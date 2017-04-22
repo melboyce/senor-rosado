@@ -1,3 +1,4 @@
+// Package slack provides an interface for working with slack.com
 package slack
 
 import (
@@ -13,8 +14,7 @@ import (
 )
 
 
-// Conn represents a slack connection
-// root response from: https://slack.com/api/rtm.connect
+// A Conn represents a slack connection.
 type Conn struct {
     Ok    bool     `json:"ok"`
     URL   string   `json:"url"`
@@ -25,19 +25,17 @@ type Conn struct {
     Sock  *websocket.Conn
 }
 
-// team struct for slackConn
 type connTeam struct {
     ID   string `json:"id"`
     Name string `json:"name"`
 }
 
-// self struct for slackConn
 type connSelf struct {
     ID   string `json:"id"`
     Name string `json:"name"`
 }
 
-// Message structure
+// A Message is a slack RTM message object with some meta.
 type Message struct {
     ID      uint64 `json:"id"`
     Type    string `json:"type"`
@@ -53,13 +51,13 @@ type Message struct {
     Tail       string
 }
 
-// Reply struct - same as a Message
+// A Reply is another name for a Message
 type Reply Message
 
-// used to generate IDs
+// see: Conn.Send()
 var counter uint64
 
-// Connect to slack and return a useful struct
+// Connect to slack and return a useful struct or an error.
 func Connect(token string) (slack Conn, err error) {
     url := fmt.Sprintf("https://slack.com/api/rtm.connect?token=%s", token)
     r, err := http.Get(url)
@@ -95,7 +93,7 @@ func Connect(token string) (slack Conn, err error) {
     return
 }
 
-// Get pulls a message out of the RTM queue and returns it as a Message struct
+// Get pulls a message out of the RTM queue and returns it as a Message struct.
 func (s Conn) Get() (m Message, err error) {
     err = websocket.JSON.Receive(s.Sock, &m)
     if err != nil {
@@ -124,10 +122,10 @@ func (s Conn) Get() (m Message, err error) {
     return
 }
 
-// Send pushes a Message struct into the RTM queue
+// Send pushes a Reply struct into the RTM queue.
 func (s Conn) Send(r *Reply, channel string) error {
     r.ID = atomic.AddUint64(&counter, 1)
     r.Channel = channel
-    r.Type = "message"
+    r.Type = "message" // TODO this will bite me later
     return websocket.JSON.Send(s.Sock, &r)
 }

@@ -1,3 +1,4 @@
+// Package slack provides an interface for working with slack.com
 package slack
 
 // TODO share logger with caller
@@ -5,11 +6,10 @@ import "log"
 import "os"
 
 
-// ChatFn is used to make a map of command functions
+// A ChatFn is a function for a chat command.
 type ChatFn func(Message, *Reply) error
 
 // ChatLoop enters a hard loop that reads off messages and processes them.
-// Note: this function doesn't return errors.
 func ChatLoop(conn Conn, cmds map[string]ChatFn) int {
     var reply Reply
     replyToUser := true
