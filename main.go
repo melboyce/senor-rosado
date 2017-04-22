@@ -4,7 +4,7 @@ import "log"
 import "fmt"
 import "os"
 
-import slack "github.com/weirdtales/senor-rosado/slack"
+import "github.com/weirdtales/senor-rosado/slack"
 
 
 func main() {
