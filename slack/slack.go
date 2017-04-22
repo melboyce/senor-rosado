@@ -46,9 +46,15 @@ type Message struct {
     Text    string `json:"text"`
     User    string `json:"user"`
 
-    Respond bool
-    Command string
+    Respond    bool
+    Target     string
+    Command    string
+    Subcommand string
+    Tail       string
 }
+
+// Reply struct - same as a Message
+type Reply Message
 
 // used to generate IDs
 var counter uint64
@@ -66,7 +72,7 @@ func Connect(token string) (slack Conn, err error) {
     }
 
     body, err := ioutil.ReadAll(r.Body)
-    r.Body.Close()
+    defer r.Body.Close()
     if err != nil {
         return
     }
@@ -96,20 +102,32 @@ func (s Conn) Get() (m Message, err error) {
         return
     }
 
-    if m.Type == "message" {
-        words := strings.Split(m.Text, " ")
-        if words[0] == "<@" + s.Self.ID + ">" {
-            m.Respond = true
-            m.Command = words[1]
-        }
+    if m.Type != "message" {
+        return
     }
+
+    // candidate for generalization if this block gets fat (parseMessage)
+    words := strings.Split(m.Text, " ")
+    if words[0] == "<@" + s.Self.ID + ">" {
+        // slack.ChatLoop uses this to ignore messages not targetted at the bot
+        m.Respond = true
+    }
+
+    n := len(words)
+
+    // these are conveniences used when authoring commands
+    m.Target = words[0] // the user that was targetted
+    if n > 1 { m.Command    = words[1] }
+    if n > 2 { m.Subcommand = words[2] }
+    if n > 3 { m.Tail       = strings.Join(words[3:], " ") }
+
     return
 }
 
 // Send pushes a Message struct into the RTM queue
-func (s Conn) Send(m Message, channel string) error {
-    m.ID = atomic.AddUint64(&counter, 1)
-    m.Channel = channel
-    m.Type = "message"
-    return websocket.JSON.Send(s.Sock, m)
+func (s Conn) Send(r *Reply, channel string) error {
+    r.ID = atomic.AddUint64(&counter, 1)
+    r.Channel = channel
+    r.Type = "message"
+    return websocket.JSON.Send(s.Sock, &r)
 }
