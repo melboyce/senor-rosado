@@ -35,6 +35,7 @@ func loop(conn slack.Conn) int {
             log.Printf("[d] msg=%+v", msg)
         }
         if ! msg.Respond {
+            // slack.Message.Respond: if true, message is targetted at bot
             continue
         }
         log.Printf(">>> %s %s: %s", msg.Channel, msg.User, msg.Text)
