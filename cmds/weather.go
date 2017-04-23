@@ -1,15 +1,19 @@
+// Package cmds provides commands to a bot
 package cmds
 
-import "fmt"
-import "os"
-import "time"
+import (
+    "fmt"
+    "os"
+    "time"
 
-import "encoding/json"
-import "net/http"
+    "encoding/json"
+    "net/http"
 
-import "github.com/weirdtales/senor-rosado/slack"
+    "github.com/weirdtales/senor-rosado/slack"
+)
 
 
+// partial struct for a google map api hit - so gross
 type weatherLocation struct {
     Results []struct {
         FormattedAddress string `json:"formatted_address"`
@@ -23,6 +27,7 @@ type weatherLocation struct {
     } `json:"results"`
 }
 
+// partial struct for a darksky api hit - so pretty
 type weatherInfo struct {
     Latitude float64 `json:"latitude"`
     Longitude float64 `json:"longitude"`
@@ -48,13 +53,15 @@ type weatherInfo struct {
         Summary string `json:"summary"`
     } `json:"hourly"`
 
-    GoogleName string
+    GoogleName string // use the google maps FormattedAddress value - it's good
 }
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 
-// Weather reports the current forecast for an airport code
+// Weather reports the current forecast for a location
+// The location is queried against the Google maps API
+// The location's long and lat are sent to Darksky to get the weather
 func Weather(m slack.Message, r *slack.Reply) error {
     token := os.Getenv("DARKSKY_API")
     if token == "" {
@@ -74,13 +81,11 @@ func Weather(m slack.Message, r *slack.Reply) error {
         return err
     }
 
-    fmt.Printf("\n%+v\n\n", loc)
-
+    // weather query
     w, err := getWeather(token, loc)
     if err != nil {
         return err
     }
-    fmt.Printf("\n%+v\n\n", w)
 
     if w.Timezone == "" {
         r.Text = "hmm, something went wrong... (no data)"
@@ -95,7 +100,7 @@ func Weather(m slack.Message, r *slack.Reply) error {
 
 }
 
-// returns a weatherLocation struct from googleapis.com/maps
+// returns a weatherLocation struct from google maps api
 func getLocation(q string) (loc weatherLocation, err error) {
     url := "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false"
     url = fmt.Sprintf(url, q) // TODO does `q` need to be sanitized?
@@ -108,13 +113,12 @@ func getWeather(token string, loc weatherLocation) (w weatherInfo, err error) {
     w.GoogleName = loc.Results[0].FormattedAddress
     url := "https://api.darksky.net/forecast/%s/%f,%f?units=si"
     url = fmt.Sprintf(url, token, loc.Results[0].Geometry.Location.Lat, loc.Results[0].Geometry.Location.Lng)
-    fmt.Printf("\n%+v\n\n", url)
     err = getJson(url, &w)
     return
 }
 
 
-// ugh
+// pointless scaffolding
 func getJson(url string, target interface{}) error {
     r, err := httpClient.Get(url)
     if err != nil {
