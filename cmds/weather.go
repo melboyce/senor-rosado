@@ -76,7 +76,7 @@ func getReply(m slack.Message) (r slack.Reply) {
     }
 
     if m.Subcommand == "" {
-        r.Text = "Specify a location, fool, then I can help."
+        r.Text = "Specify a location, then I can help."
         return
     }
 
