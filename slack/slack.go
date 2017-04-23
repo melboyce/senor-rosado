@@ -60,22 +60,17 @@ var counter uint64
 // Connect to slack and return a useful struct or an error.
 func Connect(token string) (slack Conn, err error) {
     url := fmt.Sprintf("https://slack.com/api/rtm.connect?token=%s", token)
-    r, err := http.Get(url)
+    r, err := httpClient.Get(url)
     if err != nil {
         return
     }
+    defer r.Body.Close()
     if r.StatusCode != 200 {
         err = fmt.Errorf("Error: status code: %d", r.StatusCode)
         return
     }
 
-    body, err := ioutil.ReadAll(r.Body)
-    defer r.Body.Close()
-    if err != nil {
-        return
-    }
-
-    err = json.Unmarshal(body, &slack)
+    err = json.NewDecoder(r.Body).Decode(&slack)
     if err != nil {
         return
     }
@@ -84,6 +79,7 @@ func Connect(token string) (slack Conn, err error) {
         return
     }
 
+    // attach a websocket for RTM comms to the slack struct
     ws, err := websocket.Dial(slack.URL, "", "https://api.slack.com/")
     if err != nil {
         return
