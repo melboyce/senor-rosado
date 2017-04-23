@@ -8,6 +8,7 @@ import "github.com/weirdtales/senor-rosado/slack"
 import "github.com/weirdtales/senor-rosado/cmds"
 
 
+// TODO goroutines for these
 var cmdMap = map[string]slack.ChatFn{
     "weather": func(m slack.Message, r *slack.Reply) error { return cmds.Weather(m, r) },
     "hello":   func(m slack.Message, r *slack.Reply) error { return cmds.Hello(m, r) },
