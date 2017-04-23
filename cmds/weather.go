@@ -10,17 +10,6 @@ import "net/http"
 import "github.com/weirdtales/senor-rosado/slack"
 
 
-type darkSkyResp struct {
-    Timezone  string           `json:"timezone"`
-    Currently darkSkyCurrently `json:"currently"`
-}
-
-type darkSkyCurrently struct {
-    Summary     string  `json:"summary"`
-    Icon        string  `json:"icon"`
-    Temperature float64 `json:"temperature"`
-}
-
 type weatherLocation struct {
     Results []struct {
         FormattedAddress string `json:"formatted_address"`
