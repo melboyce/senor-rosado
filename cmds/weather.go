@@ -74,14 +74,11 @@ func Weather(m slack.Message, r *slack.Reply) error {
         return nil
     }
 
-    // location query. not sure what to do about m.Tail...
-    q := m.Subcommand
-    loc, err := getLocation(q)
+    loc, err := getLocation(m.Subcommand)
     if err != nil {
         return err
     }
 
-    // weather query
     w, err := getWeather(token, loc)
     if err != nil {
         return err
