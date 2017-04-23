@@ -104,10 +104,11 @@ func (s Conn) Get() (m Message, err error) {
         return
     }
 
-    // candidate for generalization if this block gets fat (parseMessage)
+    // simple tokenization
     words := strings.Split(m.Text, " ")
+
+    // slack.ChatLoop uses this to ignore messages not targetted at the bot
     if words[0] == "<@" + s.Self.ID + ">" {
-        // slack.ChatLoop uses this to ignore messages not targetted at the bot
         m.Respond = true
     }
 
