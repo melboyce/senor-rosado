@@ -119,13 +119,7 @@ func (s *Conn) Get() (m Message, err error) {
     return
 }
 
-func (s *Conn) oldSend(r *Reply, channel string) error {
-    r.ID = atomic.AddUint64(&counter, 1)
-    r.Channel = channel
-    r.Type = "message" // TODO this will bite me later
-    return websocket.JSON.Send(s.Sock, &r)
-}
-
+// Send pushes a Reply struct onto the RTM queue
 func (s *Conn) Send(m Message, r Reply) error {
     r.ID = atomic.AddUint64(&counter, 1)
     r.Type = "message" // TODO this will bite me later
