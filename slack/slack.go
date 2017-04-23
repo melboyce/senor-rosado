@@ -2,6 +2,7 @@
 package slack
 
 import (
+    "log"
     "fmt"
     "strings"
     "time"
@@ -33,18 +34,19 @@ type Conn struct {
 
 // A Message is a slack RTM message object with some meta.
 type Message struct {
-    ID      uint64 `json:"id"`
-    Type    string `json:"type"`
-    Subtype string `json:"subtype"`
-    Channel string `json:"channel"`
-    Text    string `json:"text"`
-    User    string `json:"user"`
+    ID          uint64 `json:"id"`
+    Type        string `json:"type"`
+    Subtype     string `json:"subtype"`
+    Channel     string `json:"channel"`
+    Text        string `json:"text"`
+    User        string `json:"user"`
 
-    Respond    bool
-    Target     string
-    Command    string
-    Subcommand string
-    Tail       string
+    Respond     bool
+    Target      string
+    Command     string
+    Subcommand  string
+    Tail        string
+    ReplyToUser bool
 }
 
 // A Reply is another name for a Message
@@ -88,7 +90,7 @@ func Connect(token string) (slack Conn, err error) {
 }
 
 // Get pulls a message out of the RTM queue and returns it as a Message struct.
-func (s Conn) Get() (m Message, err error) {
+func (s *Conn) Get() (m Message, err error) {
     err = websocket.JSON.Receive(s.Sock, &m)
     if err != nil {
         return
@@ -117,10 +119,19 @@ func (s Conn) Get() (m Message, err error) {
     return
 }
 
-// Send pushes a Reply struct into the RTM queue.
-func (s Conn) Send(r *Reply, channel string) error {
+func (s *Conn) oldSend(r *Reply, channel string) error {
     r.ID = atomic.AddUint64(&counter, 1)
     r.Channel = channel
     r.Type = "message" // TODO this will bite me later
+    return websocket.JSON.Send(s.Sock, &r)
+}
+
+func (s *Conn) Send(m Message, r Reply) error {
+    r.ID = atomic.AddUint64(&counter, 1)
+    r.Type = "message" // TODO this will bite me later
+    if m.User != "" && r.ReplyToUser {
+        r.Text = "<@" + m.User + "> " + r.Text
+    }
+    log.Printf("<<< %+v", r)
     return websocket.JSON.Send(s.Sock, &r)
 }

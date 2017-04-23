@@ -10,8 +10,8 @@ import "github.com/weirdtales/senor-rosado/cmds"
 
 // TODO goroutines for these
 var cmdMap = map[string]slack.ChatFn{
-    "weather": func(m slack.Message, r *slack.Reply) error { return cmds.Weather(m, r) },
-    "hello":   func(m slack.Message, r *slack.Reply) error { return cmds.Hello(m, r) },
+    "weather": func(m slack.Message, c slack.Conn) { go cmds.Weather(m, c) },
+    "hello": func(m slack.Message, c slack.Conn) { go cmds.Hello(m, c) },
 }
 
 func main() {

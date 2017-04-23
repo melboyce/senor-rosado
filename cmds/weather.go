@@ -60,48 +60,56 @@ var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 
 // Weather reports the current forecast for a location
-// The location is queried against the Google maps API
-// The location's long and lat are sent to Darksky to get the weather
-func Weather(m slack.Message, r *slack.Reply) error {
+func Weather(m slack.Message, c slack.Conn) {
+    // TODO needs to be cached for a minute or so
+    reply := getReply(m)
+    reply.Channel = m.Channel
+    c.Send(m, reply)
+}
+
+func getReply(m slack.Message) (r slack.Reply) {
     token := os.Getenv("DARKSKY_API")
     if token == "" {
         r.Text = "I got no DARKSKY_API token in my env. Sort it."
-        return nil
+        return
     }
 
     if m.Subcommand == "" {
         r.Text = "Specify a location, fool, then I can help."
-        return nil
+        return
     }
 
     loc, err := getLocation(m.Subcommand)
     if err != nil {
-        return err
+        r.Text = fmt.Sprintf("Problem getting location: %s", err)
+        return
     }
 
     w, err := getWeather(token, loc)
     if err != nil {
-        return err
-    }
-
-    if w.Timezone == "" {
-        r.Text = "hmm, something went wrong... (no data)"
-        return nil
+        r.Text = fmt.Sprintf("Problem getting weather: %s", err)
+        return
     }
 
     report := "*%s* :point_right: %s %s, %.1f°C. %s %s"
     t := time.Unix(w.Currently.Time, 0).Format("15:04")
     r.Text = fmt.Sprintf(report, w.GoogleName, t, w.Currently.Summary, w.Currently.Temperature, w.Hourly.Summary, w.Daily.Summary)
-
-    return nil
-
+    return
 }
 
 // returns a weatherLocation struct from google maps api
 func getLocation(q string) (loc weatherLocation, err error) {
     url := "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false"
     url = fmt.Sprintf(url, q) // TODO does `q` need to be sanitized?
+
     err = getJson(url, &loc)
+    if err != nil {
+        return
+    }
+
+    if len(loc.Results) < 1 {
+        err = fmt.Errorf("google maps failed to convert the query into a location")
+    }
     return
 }
 
@@ -110,7 +118,15 @@ func getWeather(token string, loc weatherLocation) (w weatherInfo, err error) {
     w.GoogleName = loc.Results[0].FormattedAddress
     url := "https://api.darksky.net/forecast/%s/%f,%f?units=si"
     url = fmt.Sprintf(url, token, loc.Results[0].Geometry.Location.Lat, loc.Results[0].Geometry.Location.Lng)
+
     err = getJson(url, &w)
+    if err != nil {
+        return
+    }
+
+    if w.Timezone == "" {
+        err = fmt.Errorf("darksky doesn't have weather data for the location")
+    }
     return
 }
 
