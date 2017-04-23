@@ -2,37 +2,33 @@
 package slack
 
 import (
-        "fmt"
-        "strings"
+    "fmt"
+    "strings"
+    "time"
 
-        "encoding/json"
-        "io/ioutil"
-        "net/http"
-        "sync/atomic"
+    "encoding/json"
+    "net/http"
+    "sync/atomic"
 
-        "golang.org/x/net/websocket"
+    "golang.org/x/net/websocket"
 )
 
 
 // A Conn represents a slack connection.
 type Conn struct {
-    Ok    bool     `json:"ok"`
-    URL   string   `json:"url"`
-    Team  connTeam `json:"team"`
-    Self  connSelf `json:"self"`
-    Error string   `json:"error"`
+    Ok bool `json:"ok"`
+    URL string `json:"url"`
+    Team struct {
+        ID string `json:"id"`
+        Name string `json:"name"`
+    } `json:"team"`
+    Self struct {
+        ID string `json:"id"`
+        Name string `json:"name"`
+    } `json:"self"`
+    Error string `json:"error"`
 
     Sock  *websocket.Conn
-}
-
-type connTeam struct {
-    ID   string `json:"id"`
-    Name string `json:"name"`
-}
-
-type connSelf struct {
-    ID   string `json:"id"`
-    Name string `json:"name"`
 }
 
 // A Message is a slack RTM message object with some meta.
@@ -56,6 +52,8 @@ type Reply Message
 
 // see: Conn.Send()
 var counter uint64
+
+var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 // Connect to slack and return a useful struct or an error.
 func Connect(token string) (slack Conn, err error) {
