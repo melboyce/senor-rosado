@@ -16,12 +16,13 @@ var cmdMap = map[string]slack.ChatFn{
 
 func main() {
     // TODO: signals
-    if len(os.Args) < 2 {
-        fmt.Fprintf(os.Stderr, "usage: %s <TOKEN>\n", os.Args[0])
+    token := os.Getenv("SLACK_TOKEN")
+    if token == "" {
+        fmt.Printf("Need SLACK_TOKEN in the env, man.")
         os.Exit(1)
     }
 
-    conn, err := slack.Connect(os.Args[1])
+    conn, err := slack.Connect(token)
     if err != nil {
         log.Fatal(err)
     }
