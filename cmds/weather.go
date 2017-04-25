@@ -69,9 +69,9 @@ func Weather(m slack.Message, c slack.Conn) {
 
 // eats a slack.Message and returns a slack.Reply with some text set.
 func getReply(m slack.Message) (r slack.Reply) {
-    token := os.Getenv("DARKSKY_API")
+    token := os.Getenv("DARKSKY_TOKEN")
     if token == "" {
-        r.Text = "I got no DARKSKY_API token in my env. Sort it."
+        r.Text = "I got no DARKSKY_TOKEN token in my env. Sort it."
         return
     }
 
