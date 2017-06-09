@@ -42,6 +42,14 @@ functions:
 * `Register() string`
 * `Respond(slack.Message, slack.Conn, []string)`
 
+These plugins must be built thusly:
+
+```
+go build -buildmode=plugin -o plugins/PLUG.so _cartridges/PLUG.go
+```
+
+The [Makefile](Makefile) has a target for doing this en masse.
+
 
 ### Register()
 
