@@ -1,31 +1,26 @@
 package main
 
-import "log"
-import "fmt"
-import "os"
+import (
+	"log"
+	"os"
 
-import "github.com/weirdtales/senor-rosado/slack"
-import "github.com/weirdtales/senor-rosado/cmds"
-
-
-// TODO goroutines for these
-var cmdMap = map[string]slack.ChatFn{
-    "weather": func(m slack.Message, c slack.Conn) { go cmds.Weather(m, c) },
-    "hello": func(m slack.Message, c slack.Conn) { go cmds.Hello(m, c) },
-}
+	"github.com/weirdtales/senor-rosado/slack"
+)
 
 func main() {
-    // TODO: signals
-    token := os.Getenv("SLACK_TOKEN")
-    if token == "" {
-        fmt.Printf("Need SLACK_TOKEN in the env, man.")
-        os.Exit(1)
-    }
+	// TODO: signals
+	token := os.Getenv("SLACK_TOKEN")
+	if token == "" {
+		log.Fatal("!!! Need SLACK_TOKEN in the env, man.\n")
+		os.Exit(1)
+	}
 
-    conn, err := slack.Connect(token)
-    if err != nil {
-        log.Fatal(err)
-    }
+	conn, err := slack.Connect(token)
+	if err != nil {
+		log.Printf("%+v\n", conn)
+		log.Fatal(err)
+	}
 
-    os.Exit(slack.ChatLoop(conn, cmdMap))
+	log.Println("-i- starting up...")
+	slack.ChatLoop(conn) // TODO ChatLoop doesn't return
 }
