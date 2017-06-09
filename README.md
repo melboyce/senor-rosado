@@ -2,10 +2,7 @@
 
 ## Summary
 
-This is a Slack bot written in Go. Two things of note:
-
-* this is my first crack at Go, so it's inelegant (aka shitty)
-* ???
+This is a Slack bot written in Go.
 
 
 ## Running It
@@ -35,17 +32,26 @@ Execute the Docker image:
 
 ## Adding Commands
 
-`main.go` has an example, but in short:
+Commands are Go plugins the source for which should be in the
+[_cartridges](_cartridges/) dir. The directory name is prefixed with
+an underscore so `go build` doesn't compile its contents automatically.
 
-* commands are go functions
-* commands are executed from a map
-* the map is keyed with the name of the command
-* the map values are functions that execute some go
+Commands (cartridges) must be `package main` and must implement the following
+functions:
 
-There's a type used for the map:
+* `Register() string`
+* `Respond(slack.Message, slack.Conn, []string)`
 
-```go
-map[string]slack.ChatFn
-```
 
-Both `ChatLoop` and `ChatFn` are in `slack/chat.go`.
+### Register()
+
+This function returns a string used as a regexp which is matched against
+the input text sans the bot's UID. If there is a match, the `Respond()`
+function is called.
+
+
+### Respond(slack.Message, slack.Conn, []string)
+
+This function forumlates a reply and sends it. See
+[hello.go](_cartridges/hello.go) for an example of how to do this. The
+`[]string` is the list of matches that the regexp from `Register()` matched.
