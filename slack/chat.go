@@ -53,7 +53,7 @@ func ChatLoop(conn Conn) {
 				continue
 			}
 			if len(m) > 0 {
-				resp.(func(Message, Conn, []string))(msg, conn, m)
+				go resp.(func(Message, Conn, []string))(msg, conn, m)
 			}
 		}
 	}
@@ -71,7 +71,6 @@ func loadCarts() (carts []cart) {
 		log.Printf("ERR %s\n", err)
 		return
 	}
-	carts = make([]cart, len(cartfiles), len(cartfiles))
 	var c cart
 	for _, cartfile := range cartfiles {
 		log.Printf("-i- loadcart: %s\n", cartfile)
@@ -86,7 +85,7 @@ func loadCarts() (carts []cart) {
 		}
 	}
 
-	return carts[1:]
+	return
 }
 
 func register(c *cart) bool {
