@@ -59,8 +59,10 @@ type weatherInfo struct {
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 // Register ...
-func Register() string {
-	return `^weather .+`
+func Register() (r string, h string) {
+	r = `^weather .+`
+	h = "`weather stalins tomb` get a weather report for a place"
+	return
 }
 
 // Respond reports the current forecast for a location.
@@ -142,6 +144,7 @@ func getJSON(url string, target interface{}) error {
 	}
 	defer r.Body.Close()
 	if r.StatusCode != 200 {
+		err = fmt.Errorf("ERR non-200 response from \"%d\"", r.StatusCode)
 		return err
 	}
 

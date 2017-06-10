@@ -138,3 +138,18 @@ func (s *Conn) Send(m Message, r Reply) error {
 	log.Printf("<<< %+v\n", r)
 	return websocket.JSON.Send(s.Sock, &r)
 }
+
+// GetJSON is a helper for unmarshalling JSON responses
+func GetJSON(url string, target interface{}) error {
+	r, err := httpClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+	if r.StatusCode != 200 {
+		err = fmt.Errorf("ERR non-200 response from \"%d\"", r.StatusCode)
+		return err
+	}
+
+	return json.NewDecoder(r.Body).Decode(target)
+}
