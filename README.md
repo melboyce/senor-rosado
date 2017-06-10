@@ -47,16 +47,10 @@ Build the image:
 docker build -t sr .
 ```
 
-Build the local plugins (these will be mounted into the container):
-
-```
-make build
-```
-
 Execute the Docker image:
 
 ```
-docker run -it -v $PWD/plugins:/plugins --env-file secrets.env sr
+docker run -it -v --env-file secrets.env sr
 ```
 
 
