@@ -45,20 +45,17 @@ func ChatLoop(conn Conn) {
 
 		// match input
 		for _, cart := range carts {
-			re := regexp.MustCompile(cart.regpatt)
-			m := re.FindStringSubmatch(msg.Full)
-
-			if os.Getenv("DEBUG") == "1" {
-				log.Printf("DBG re=%s line=%s", re, msg.Full)
-			}
-
 			resp, err := cart.plugin.Lookup("Respond")
 			if err != nil {
 				log.Printf("ERR %s\n", err)
 				continue
 			}
 
+			re := regexp.MustCompile(cart.regpatt)
+			m := re.FindStringSubmatch(msg.Full)
+
 			if len(m) > 0 {
+				// TODO find out if calling a plguin func as a goroutine is sensible
 				go resp.(func(Message, Conn, []string))(msg, conn, m)
 			}
 		}
