@@ -1,4 +1,4 @@
-SHELL := /bin/zsh
+SHELL := /bin/bash
 
 TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL: $(TARGET)
@@ -15,9 +15,9 @@ all: check $(TARGET)
 
 $(TARGET):
 	go build $(LDFLAGS) -o $(TARGET)
-	find _cartridges -name '*.go' | while read -r; do \
-	go build -buildmode=plugin \
-	-o plugins/$${$${REPLY##*/}%go}so $$REPLY; done
+	go build -buildmode=plugin -o plugins/hello.so _cartridges/hello.go
+	go build -buildmode=plugin -o plugins/giphy.so _cartridges/giphy.go
+	go build -buildmode=plugin -o plugins/weather.so _cartridges/weather.go
 
 build: $(TARGET)
 	@true
