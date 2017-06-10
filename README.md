@@ -1,5 +1,7 @@
 # Señor Rosado
 
+[![Build Status](https://travis-ci.org/weirdtales/senor-rosado.svg?branch=master)](https://travis-ci.org/weirdtales/senor-rosado)
+
 ## TODO
 
 * plugins are shit
