@@ -2,7 +2,6 @@
 package slack
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,6 +30,7 @@ func ChatLoop(conn Conn) {
 			log.Fatal(err)
 		}
 
+		// TODO is this okay?
 		if !msg.Respond {
 			continue
 		}
@@ -38,15 +38,9 @@ func ChatLoop(conn Conn) {
 		log.Printf(">>> %s %s: %s (cmd=%s)\n", msg.Channel, msg.User, msg.Text, msg.Command)
 
 		// built-ins
-		if msg.User == "U52JX5HPE" { // TODO auth system
-			switch {
-			case msg.Command == "reload":
-				carts = loadCarts()
-			case msg.Command == "dump":
-				dump(msg, conn)
-			case msg.Command == "help":
-				help(msg, conn, carts)
-			}
+		switch {
+		case msg.Command == "help":
+			help(msg, conn, carts)
 		}
 
 		// match input
@@ -69,10 +63,6 @@ func ChatLoop(conn Conn) {
 			}
 		}
 	}
-}
-
-func dump(m Message, c Conn) {
-	fmt.Printf("MSG:\n%+v\n\nCONN:\n%+v\n\n", m, c)
 }
 
 func loadCarts() (carts []cart) {
