@@ -14,6 +14,7 @@ SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 all: check $(TARGET)
 
 $(TARGET):
+	go get -d ./...
 	go build $(LDFLAGS) -o $(TARGET)
 	go build -buildmode=plugin -o plugins/hello.so _cartridges/hello.go
 	go build -buildmode=plugin -o plugins/giphy.so _cartridges/giphy.go
