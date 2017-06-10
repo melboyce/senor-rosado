@@ -1,8 +1,26 @@
 # Señor Rosado
 
+## TODO
+
+* plugins are shit
+* dockerfile builds plugins manually
+
 ## Summary
 
 This is a Slack bot written in Go.
+
+Of particular note:
+
+* `plugin` is really new and a little raw.
+* `plugin` does not support reloading plugins.
+* `plugin` does not allow `CGO_ENABLED=0`.
+
+This means until the `plugin` library is matured, the plugin architecture
+costs a lot in terms of size and only allows new plugins to be added, but
+loaded plugins cannot be modified without restarting the bot.
+
+There's also a non-trivial amount of compile-time involved with building
+Go plugins at the moment.
 
 
 ## Running It
@@ -12,6 +30,7 @@ There are some pre-requisites:
 ```
 1. get a Slack bot token
 2. get a DarkSky API token
+3. get a Giphy API token
 ```
 
 Create a file called `secrets.env` and populate it with the following:
@@ -19,15 +38,26 @@ Create a file called `secrets.env` and populate it with the following:
 ```
 SLACK_TOKEN=xxx
 DARKSKY_TOKEN=yyy
+GIPHY_TOKEN=zzz
 ```
 
 Build the image:
 
-`docker build -t senor-rosado .`
+```
+docker build -t sr .
+```
+
+Build the local plugins (these will be mounted into the container):
+
+```
+make build
+```
 
 Execute the Docker image:
 
-`docker run -it --env-file secrets.env senor-rosado`
+```
+docker run -it -v $PWD/plugins:/plugins --env-file secrets.env sr
+```
 
 
 ## Adding Commands
@@ -39,7 +69,7 @@ an underscore so `go build` doesn't compile its contents automatically.
 Commands (cartridges) must be `package main` and must implement the following
 functions:
 
-* `Register() string`
+* `Register() (string, string)`
 * `Respond(slack.Message, slack.Conn, []string)`
 
 These plugins must be built thusly:
@@ -53,9 +83,10 @@ The [Makefile](Makefile) has a target for doing this en masse.
 
 ### Register()
 
-This function returns a string used as a regexp which is matched against
-the input text sans the bot's UID. If there is a match, the `Respond()`
-function is called.
+The two strings returned by `Register()` are:
+
+* `regexp` used to match incoming command inputs
+* `help` text used by the built-in command `help`
 
 
 ### Respond(slack.Message, slack.Conn, []string)
