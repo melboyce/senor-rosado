@@ -81,11 +81,10 @@ func Connect(token string) (slack Conn, err error) {
 	}
 
 	// attach a websocket for RTM comms to the slack struct
-	ws, err := websocket.Dial(slack.URL, "", "https://api.slack.com/")
+	slack.Sock, err = websocket.Dial(slack.URL, "", "https://api.slack.com/")
 	if err != nil {
 		return
 	}
-	slack.Sock = ws
 
 	return
 }
@@ -109,10 +108,9 @@ func (s *Conn) Get() (m Message, err error) {
 		m.Respond = true
 	}
 
-	n := len(words)
-
 	// these are conveniences used when authoring commands
 	m.Target = words[0] // the user that was targetted
+	n := len(words)
 	if n > 1 {
 		m.Command = words[1]
 		m.Full = strings.Join(words[1:], " ")
