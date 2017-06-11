@@ -10,3 +10,7 @@ services:
 
 before_install:
     - docker build -t sr .
+
+branches:
+    only:
+        - master
