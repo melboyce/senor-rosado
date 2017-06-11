@@ -62,6 +62,7 @@ func Register() (r string, h string) {
 // Respond reports the current forecast for a location.
 func Respond(m slack.Message, c slack.Conn, matches []string) {
 	// TODO needs to be cached for a minute or so
+	defer slack.PanicSuppress()
 	reply := getReply(m)
 	reply.Channel = m.Channel
 	c.Send(m, reply)
@@ -71,24 +72,24 @@ func Respond(m slack.Message, c slack.Conn, matches []string) {
 func getReply(m slack.Message) (r slack.Reply) {
 	token := os.Getenv("DARKSKY_TOKEN")
 	if token == "" {
-		r.Text = "I got no DARKSKY_TOKEN token in my env. Sort it."
+		r.Text = "Darksky API token has not been set. Lo siento."
 		return
 	}
 
-	if m.Subcommand == "" {
+	if m.Tail == "" {
 		r.Text = "Specify a location, then I can help."
 		return
 	}
 
 	loc, err := getLocation(strings.Replace(m.Tail, " ", ",", -1))
 	if err != nil {
-		r.Text = fmt.Sprintf("Problem getting location: %s", err)
+		r.Text = fmt.Sprintf("getLocation() problema: %s", err)
 		return
 	}
 
 	w, err := getWeather(token, loc)
 	if err != nil {
-		r.Text = fmt.Sprintf("Problem getting weather: %s", err)
+		r.Text = fmt.Sprintf("getWeather() problema: %s", err)
 		return
 	}
 
@@ -118,8 +119,7 @@ func getWeather(token string, loc weatherLocation) (w weatherInfo, err error) {
 	url := "https://api.darksky.net/forecast/%s/%f,%f?units=si"
 	url = fmt.Sprintf(url, token, loc.Results[0].Geometry.Location.Lat, loc.Results[0].Geometry.Location.Lng)
 
-	err = slack.GetJSON(url, &w)
-	if err != nil {
+	if err = slack.GetJSON(url, &w); err != nil {
 		return
 	}
 

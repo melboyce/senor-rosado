@@ -26,6 +26,7 @@ type giphySearch struct {
 
 // Respond finds a Gif on Giphy
 func Respond(m slack.Message, c slack.Conn, matches []string) {
+	defer slack.PanicSuppress()
 	reply := slack.Reply{}
 	reply.Channel = m.Channel
 
@@ -40,8 +41,7 @@ func Respond(m slack.Message, c slack.Conn, matches []string) {
 	url = fmt.Sprintf(url, strings.Replace(m.Tail, " ", "+", -1), token)
 
 	var gifs giphySearch
-	err := slack.GetJSON(url, &gifs)
-	if err != nil {
+	if err := slack.GetJSON(url, &gifs); err != nil {
 		log.Printf("ERR %s\n", err)
 		reply.Text = "problema!"
 		c.Send(m, reply)

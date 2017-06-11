@@ -144,10 +144,18 @@ func GetJSON(url string, target interface{}) error {
 		return err
 	}
 	defer r.Body.Close()
+
 	if r.StatusCode != 200 {
-		err = fmt.Errorf("ERR non-200 response from \"%d\"", r.StatusCode)
+		err = fmt.Errorf("ERR non-200 response: \"%d\" url=%s", r.StatusCode, url)
 		return err
 	}
 
 	return json.NewDecoder(r.Body).Decode(target)
+}
+
+// PanicSuppress ...
+func PanicSuppress() {
+	if r := recover(); r != nil {
+		fmt.Println(".!. PANIC SUPRESSED:", r)
+	}
 }

@@ -104,3 +104,4 @@ The `slack` package provides some conveniences:
 |Func|Utility|
 |:---|:------|
 |`GetJSON(url string, target interface{}) error`|mutate a &struct with a JSON unmarshal|
+|`PanicSuppress()`|defer this in Respond() pls|

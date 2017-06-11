@@ -45,16 +45,16 @@ func ChatLoop(conn Conn) {
 
 		// match input
 		for _, cart := range carts {
-			resp, err := cart.plugin.Lookup("Respond")
-			if err != nil {
-				log.Printf("ERR %s\n", err)
-				continue
-			}
-
 			re := regexp.MustCompile(cart.regpatt)
 			m := re.FindStringSubmatch(msg.Full)
 
 			if len(m) > 0 {
+				resp, err := cart.plugin.Lookup("Respond")
+				if err != nil {
+					log.Printf("ERR %s\n", err)
+					continue
+				}
+
 				// TODO find out if calling a plguin func as a goroutine is sensible
 				go resp.(func(Message, Conn, []string))(msg, conn, m)
 			}
@@ -65,7 +65,10 @@ func ChatLoop(conn Conn) {
 func loadCarts() (carts []cart) {
 	// TODO reloading doesn't work as plugin.Open always returns the
 	//      same *Plugin
-	dir := "plugins" // TODO config
+	dir := os.Getenv("SR_PLUGDIR")
+	if dir == "" {
+		dir = "plugins"
+	}
 	// TODO shitty path handling
 	cartfiles, err := filepath.Glob(dir + "/*.so")
 	if err != nil {
@@ -86,6 +89,10 @@ func loadCarts() (carts []cart) {
 		}
 	}
 
+	return
+}
+
+func deleteCart(c cart) (carts []cart) {
 	return
 }
 

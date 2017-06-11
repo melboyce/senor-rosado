@@ -28,6 +28,7 @@ func Register() (r string, h string) {
 
 // Respond ...
 func Respond(m slack.Message, c slack.Conn, matches []string) {
+	defer slack.PanicSuppress()
 	reply := slack.Reply{}
 	reply.Channel = m.Channel
 	rand.Seed(time.Now().Unix())
