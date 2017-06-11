@@ -55,6 +55,11 @@ Execute the Docker image:
 docker run -it -v --env-file secrets.env sr
 ```
 
+### Plugins
+
+When using Docker, plugins are compiled internally to the container
+namespace. Support for external plugins at some point hopefully.
+
 
 ## Adding Commands
 
