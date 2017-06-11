@@ -30,7 +30,7 @@ func ChatLoop(conn Conn) {
 			log.Fatal(err)
 		}
 
-		// TODO is this okay?
+		// TODO support for commands that check all conversation
 		if !msg.Respond {
 			continue
 		}
