@@ -90,3 +90,12 @@ The two strings returned by `Register()` are:
 This function forumlates a reply and sends it. See
 [hello.go](_cartridges/hello.go) for an example of how to do this. The
 `[]string` is the list of matches that the regexp from `Register()` matched.
+
+
+## Utility Functions
+
+The `slack` package provides some conveniences:
+
+|Func|Utility|
+|:---|:------|
+|`GetJSON(url string, target interface{}) error`|mutate a &struct with a JSON unmarshal|
