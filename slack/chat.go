@@ -3,25 +3,14 @@ package slack
 
 import (
 	"log"
-	"os"
-	"path/filepath"
-	"plugin"
 	"regexp"
 )
 
-type cart struct {
-	plugin  *plugin.Plugin
-	regpatt string
-	help    string
-}
-
 // ChatLoop enters a hard loop that reads off messages and processes them.
 func ChatLoop(conn Conn) {
-	carts := loadCarts()
-	if os.Getenv("DEBUG") == "1" {
-		for _, c := range carts {
-			log.Printf("DBG cart: %+v\n", c)
-		}
+	lib := CartLibrary{}
+	if err := lib.Load(); err != nil {
+		panic(err)
 	}
 
 	for {
@@ -40,16 +29,16 @@ func ChatLoop(conn Conn) {
 		// built-ins
 		switch {
 		case msg.Command == "help":
-			help(msg, conn, carts)
+			help(msg, conn, lib)
 		}
 
 		// match input
-		for _, cart := range carts {
-			re := regexp.MustCompile(cart.regpatt)
+		for _, cart := range lib.Carts {
+			re := regexp.MustCompile(cart.Regpatt)
 			m := re.FindStringSubmatch(msg.Full)
 
 			if len(m) > 0 {
-				resp, err := cart.plugin.Lookup("Respond")
+				resp, err := cart.Plugin.Lookup("Respond")
 				if err != nil {
 					log.Printf("ERR %s\n", err)
 					continue
@@ -62,61 +51,17 @@ func ChatLoop(conn Conn) {
 	}
 }
 
-func loadCarts() (carts []cart) {
-	// TODO reloading doesn't work as plugin.Open always returns the
-	//      same *Plugin
-	dir := os.Getenv("SR_PLUGDIR")
-	if dir == "" {
-		dir = "plugins"
-	}
-	// TODO shitty path handling
-	cartfiles, err := filepath.Glob(dir + "/*.so")
-	if err != nil {
-		log.Printf("ERR %s\n", err)
-		return
-	}
-	var c cart
-	for _, cartfile := range cartfiles {
-		log.Printf("-i- loadcart: %s\n", cartfile)
-		p, err := plugin.Open(cartfile)
-		if err != nil {
-			log.Printf("ERR %s\n", err)
-			continue
-		}
-		c = cart{plugin: p}
-		if register(&c) {
-			carts = append(carts, c)
-		}
-	}
-
-	return
-}
-
-func deleteCart(c cart) (carts []cart) {
-	return
-}
-
-func register(c *cart) bool {
-	r, err := c.plugin.Lookup("Register")
-	if err != nil {
-		log.Printf("ERR %s\n", err)
-		return false
-	}
-	c.regpatt, c.help = r.(func() (string, string))()
-	return true
-}
-
-func help(m Message, c Conn, carts []cart) {
+func help(m Message, c Conn, l CartLibrary) {
 	reply := Reply{}
 	reply.Channel = m.Channel
-	if len(carts) < 1 {
+	if len(l.Carts) < 1 {
 		reply.Text = "Perdone, pero creo que le han desinformado."
 		c.Send(m, reply)
 		return
 	}
 	reply.Text = "Escoja lo que prefiera, invita la casa:\n"
-	for _, cart := range carts {
-		reply.Text += ":point_right: " + cart.help + "\n"
+	for _, cart := range l.Carts {
+		reply.Text += ":point_right: " + cart.Help + "\n"
 	}
 	c.Send(m, reply)
 }

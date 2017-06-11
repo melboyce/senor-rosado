@@ -4,6 +4,9 @@ package slack
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"plugin"
 	"strings"
 	"time"
 
@@ -52,6 +55,18 @@ type Message struct {
 
 // A Reply is another name for a Message
 type Reply Message
+
+// CartLibrary is a slice of cartirdges and some meta
+type CartLibrary struct {
+	Carts []Cart
+}
+
+// Cart is a single plugin cartridge
+type Cart struct {
+	Plugin  *plugin.Plugin
+	Regpatt string
+	Help    string
+}
 
 // see: Conn.Send()
 var counter uint64
@@ -139,6 +154,46 @@ func (s *Conn) Send(m Message, r Reply) error {
 	return websocket.JSON.Send(s.Sock, &r)
 }
 
+// Load populates CartLibrary.Carts with plugins
+func (l *CartLibrary) Load() (err error) {
+	dir := os.Getenv("SR_PLUGIN")
+	if dir == "" {
+		dir = "plugins"
+	}
+
+	glob, err := filepath.Glob(filepath.Join(dir, "*.so"))
+	if err != nil {
+		return
+	}
+
+	var c Cart
+	for _, fp := range glob {
+		log.Printf("INF loading cart: %s\n", fp)
+		p, err := plugin.Open(fp)
+		if err != nil {
+			fmt.Printf("ERR %s\n", err)
+			continue
+		}
+
+		c = Cart{Plugin: p}
+		if register(&c) {
+			l.Carts = append(l.Carts, c)
+		}
+	}
+
+	return
+}
+
+func register(c *Cart) bool {
+	r, err := c.Plugin.Lookup("Register")
+	if err != nil {
+		log.Printf("ERR %s\n", err)
+		return false
+	}
+	c.Regpatt, c.Help = r.(func() (string, string))()
+	return true
+}
+
 // GetJSON is a helper for unmarshalling JSON responses
 func GetJSON(url string, target interface{}) error {
 	r, err := httpClient.Get(url)
@@ -155,7 +210,7 @@ func GetJSON(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-// PanicSuppress ...
+// PanicSuppress is a helper for plugins to blind-recover from panic()
 func PanicSuppress() {
 	if r := recover(); r != nil {
 		fmt.Println(".!. PANIC SUPRESSED:", r)
