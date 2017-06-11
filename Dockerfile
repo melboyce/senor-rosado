@@ -3,8 +3,8 @@ FROM golang:1.8.3
 ADD . /go/src/github.com/weirdtales/senor-rosado
 
 RUN cd /go/src/github.com/weirdtales/senor-rosado && \
-    go test ./... && \
     go get -d ./... && \
+    go test ./... && \
     go build -o /senor-rosado && \
     mkdir /plugins && \
     go build -buildmode=plugin -o /plugins/hello.so _cartridges/hello.go && \
