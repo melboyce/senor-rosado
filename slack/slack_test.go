@@ -20,20 +20,20 @@ func TestConnect(t *testing.T) {
 	token := "test"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resp := `{
-	"ok": true,
-	"url": "wss://ms9.slack-msgs.com/websocket/2I5yBpcvk",
-	"team": {
-		"id": "T654321",
-		"name": "Librarian Society of Soledad",
-		"domain": "libsocos",
-		"enterprise_id": "E234567",
-		"enterprise_name": "Intercontinental Librarian Society"
-	},
-	"self": {
-		"id": "W123456",
-		"name": "brautigan"
-	}
-	}`
+			"ok": true,
+			"url": "wss://ms9.slack-msgs.com/websocket/2I5yBpcvk",
+			"team": {
+				"id": "T654321",
+				"name": "Librarian Society of Soledad",
+				"domain": "libsocos",
+				"enterprise_id": "E234567",
+				"enterprise_name": "Intercontinental Librarian Society"
+			},
+			"self": {
+				"id": "W123456",
+				"name": "brautigan"
+			}
+		}`
 		fmt.Fprintln(w, resp)
 	}))
 	defer ts.Close()
