@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
-
-	"encoding/json"
-	"net/http"
 
 	"github.com/weirdtales/senor-rosado/slack"
 )
@@ -55,8 +51,6 @@ type weatherInfo struct {
 
 	GoogleName string // use the google maps FormattedAddress value - it's good
 }
-
-var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 // Register ...
 func Register() (r string, h string) {
@@ -108,8 +102,7 @@ func getLocation(q string) (loc weatherLocation, err error) {
 	url := "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false"
 	url = fmt.Sprintf(url, q) // TODO does `q` need to be sanitized?
 
-	err = getJSON(url, &loc)
-	if err != nil {
+	if err = slack.getJSON(url, &loc); err != nil {
 		return
 	}
 
@@ -125,28 +118,14 @@ func getWeather(token string, loc weatherLocation) (w weatherInfo, err error) {
 	url := "https://api.darksky.net/forecast/%s/%f,%f?units=si"
 	url = fmt.Sprintf(url, token, loc.Results[0].Geometry.Location.Lat, loc.Results[0].Geometry.Location.Lng)
 
-	err = getJSON(url, &w)
+	err = slack.getJSON(url, &w)
 	if err != nil {
 		return
 	}
 
+	// TODO brittle?
 	if w.Timezone == "" {
 		err = fmt.Errorf("darksky doesn't have weather data for the location")
 	}
 	return
-}
-
-// pointless scaffolding.
-func getJSON(url string, target interface{}) error {
-	r, err := httpClient.Get(url)
-	if err != nil {
-		return err
-	}
-	defer r.Body.Close()
-	if r.StatusCode != 200 {
-		err = fmt.Errorf("ERR non-200 response from \"%d\"", r.StatusCode)
-		return err
-	}
-
-	return json.NewDecoder(r.Body).Decode(target)
 }
