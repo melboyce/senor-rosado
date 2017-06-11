@@ -58,9 +58,11 @@ var counter uint64
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
+var slackAPIURL = "https://slack.com/api/rtm.connect?token=%s"
+
 // Connect to slack and return a useful struct or an error.
 func Connect(token string) (slack Conn, err error) {
-	url := fmt.Sprintf("https://slack.com/api/rtm.connect?token=%s", token)
+	url := fmt.Sprintf(slackAPIURL, token)
 	r, err := httpClient.Get(url)
 	if err != nil {
 		return

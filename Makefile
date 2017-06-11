@@ -11,7 +11,7 @@ SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 .PHONY: all build clean install uninstall fmt simplify check run
 
-all: check $(TARGET)
+all: check test $(TARGET)
 
 $(TARGET):
 	go get -d ./...
@@ -46,3 +46,6 @@ check:
 
 run: install
 	$(TARGET)
+
+test:
+	go test ./...
