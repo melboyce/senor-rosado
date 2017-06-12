@@ -19,12 +19,12 @@ func ChatLoop(conn Conn) {
 			log.Fatal(err)
 		}
 
+		log.Printf(">>> %+v\n", msg)
+
 		// TODO support for commands that check all conversation
 		if !msg.Respond {
 			continue
 		}
-
-		log.Printf(">>> %s %s: %s (cmd=%s)\n", msg.Channel, msg.User, msg.Text, msg.Command)
 
 		// built-ins
 		switch {

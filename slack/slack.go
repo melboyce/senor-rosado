@@ -123,10 +123,15 @@ func (s *Conn) Get() (m Message, err error) {
 	// slack.ChatLoop uses this to ignore messages not targetted at the bot
 	if words[0] == "<@"+s.Self.ID+">" {
 		m.Respond = true
+		m.Target = words[0] // convenience
+	}
+	if strings.HasPrefix(m.Channel, "D") {
+		m.Respond = true
+		m.Target = s.Self.ID
+		words = append([]string{s.Self.ID}, words...)
 	}
 
 	// these are conveniences used when authoring commands
-	m.Target = words[0] // the user that was targetted
 	n := len(words)
 	if n > 1 {
 		m.Command = words[1]
@@ -150,7 +155,7 @@ func (s *Conn) Send(m Message, r Reply) error {
 	if m.User != "" && r.ReplyToUser {
 		r.Text = "<@" + m.User + "> " + r.Text
 	}
-	log.Printf("<<< %+v\n", r)
+	log.Printf("<<< %s\n", r.Text)
 	return websocket.JSON.Send(s.Sock, &r)
 }
 
