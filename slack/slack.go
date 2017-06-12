@@ -161,7 +161,7 @@ func (s *Conn) Send(m Message, r Reply) error {
 
 // Load populates CartLibrary.Carts with plugins
 func (l *CartLibrary) Load() (err error) {
-	dir := os.Getenv("SR_PLUGIN")
+	dir := os.Getenv("SR_PLUGIN_DIR")
 	if dir == "" {
 		dir = "plugins"
 	}
