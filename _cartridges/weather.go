@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/weirdtales/senor-rosado/slack"
 )
@@ -93,8 +94,12 @@ func getReply(m slack.Message) (r slack.Reply) {
 		return
 	}
 
-	report := "*%s* :point_right: %s, %.1f°C. %s %s"
-	r.Text = fmt.Sprintf(report, w.GoogleName, w.Currently.Summary, w.Currently.Temperature, w.Hourly.Summary, w.Daily.Summary)
+	tz, _ := time.LoadLocation(w.Timezone)
+	t := time.Unix(w.Currently.Time, 0)
+	ts := t.In(tz).Format("15:04")
+
+	report := "*%s* @ %s :point_right: %s, %.1f°C. %s %s"
+	r.Text = fmt.Sprintf(report, w.GoogleName, ts, w.Currently.Summary, w.Currently.Temperature, w.Hourly.Summary, w.Daily.Summary)
 	return
 }
 
