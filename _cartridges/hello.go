@@ -21,7 +21,7 @@ var greetings = []string{
 
 // Register ...
 func Register() (r string, h string) {
-	r = "^(hello|hi)"
+	r = "^(hello|hi) "
 	h = "`hello|hi` say hello"
 	return
 }
