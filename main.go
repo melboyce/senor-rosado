@@ -4,23 +4,32 @@ import (
 	"log"
 	"os"
 
+	"github.com/weirdtales/senor-rosado/cmds"
 	"github.com/weirdtales/senor-rosado/slack"
 )
+
+var commands = []slack.Command{
+	slack.Command{
+		Register: cmds.HelloRegister,
+		Respond:  cmds.HelloRespond,
+	},
+}
 
 func main() {
 	// TODO: signals
 	token := os.Getenv("SLACK_TOKEN")
 	if token == "" {
-		log.Fatal("!!! Need SLACK_TOKEN in the env, man.\n")
-		os.Exit(1)
+		log.Printf("!!! missing SLACK_TOKEN env var\n")
+		os.Exit(127)
 	}
 
 	conn, err := slack.Connect(token)
 	if err != nil {
 		log.Printf("%+v\n", conn)
-		log.Fatal(err)
+		log.Print(err)
+		os.Exit(126)
 	}
 
-	log.Println("-i- starting up...")
-	slack.ChatLoop(conn) // TODO ChatLoop doesn't return
+	slack.Init(&conn, commands)
+	slack.Loop(&conn)
 }

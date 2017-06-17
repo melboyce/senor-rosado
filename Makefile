@@ -16,16 +16,12 @@ all: check test $(TARGET)
 $(TARGET):
 	go get -d ./...
 	go build $(LDFLAGS) -o $(TARGET)
-	go build -buildmode=plugin -o plugins/hello.so _cartridges/hello.go
-	go build -buildmode=plugin -o plugins/giphy.so _cartridges/giphy.go
-	go build -buildmode=plugin -o plugins/weather.so _cartridges/weather.go
 
 build: $(TARGET)
 	@true
 
 clean:
 	rm -f $(TARGET)
-	rm -f plugins/*
 	go clean
 
 install:
