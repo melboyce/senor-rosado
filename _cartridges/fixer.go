@@ -11,7 +11,7 @@ import (
 
 // Register for giphy cartridge
 func Register() (r string, h string) {
-	r = "^(fixer|fx) "
+	r = `^(fixer|fx) (\w\w\w) ([\d.]+) (\w\w\w)`
 	h = "`fixer eur 99.95 aud` use fixer.io to convert currency"
 	return
 }
@@ -38,7 +38,7 @@ func Respond(m slack.Message, c slack.Conn, matches []string) {
 	reply.Channel = m.Channel
 
 	u := "https://api.fixer.io/latest?base=%s"
-	u = fmt.Sprintf(u, url.QueryEscape(m.Subcommand))
+	u = fmt.Sprintf(u, url.QueryEscape(matches[2]))
 
 	var resp fixerData
 	if err := slack.GetJSON(u, &resp); err != nil {
@@ -54,13 +54,13 @@ func Respond(m slack.Message, c slack.Conn, matches []string) {
 	}
 
 	reply.Text = "hoy no"
-	amt, err := strconv.ParseFloat(string(m.Args[1]), 64)
+	amt, err := strconv.ParseFloat(matches[3], 64)
 	if err != nil {
 		slack.SendError(c, m, err, "")
 		return
 	}
 
-	t := strings.ToUpper(string(m.Args[2]))
+	t := strings.ToUpper(matches[4])
 	rate, ok := resp.Rates[t]
 	if !ok {
 		slack.SendError(c, m, err, fmt.Sprintf("%s :point_left: ¿Qué es esto?", t))
