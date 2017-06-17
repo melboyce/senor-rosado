@@ -47,6 +47,7 @@ type Message struct {
 	Target      string
 	Full        string
 	Command     string
+	Args        []string
 	Subcommand  string
 	Tail        string
 	SubTail     string
@@ -140,6 +141,7 @@ func (s *Conn) Get() (m Message, err error) {
 	if n > 2 {
 		m.Subcommand = words[2]
 		m.Tail = strings.Join(words[2:], " ")
+		m.Args = words[2:]
 	}
 	if n > 3 {
 		m.SubTail = strings.Join(words[3:], "")
@@ -220,4 +222,16 @@ func PanicSuppress() {
 	if r := recover(); r != nil {
 		fmt.Println(".!. PANIC SUPRESSED:", r)
 	}
+}
+
+// SendError sends an error reply and logs it
+func SendError(c Conn, m Message, err error, rtext string) {
+	log.Printf("%s\n", err)
+	r := Reply{}
+	r.Channel = m.Channel
+	r.Text = rtext
+	if r.Text == "" {
+		r.Text = "problema!"
+	}
+	c.Send(m, r)
 }
