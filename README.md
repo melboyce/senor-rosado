@@ -105,3 +105,4 @@ The `slack` package provides some conveniences:
 |:---|:------|
 |`GetJSON(url string, target interface{}) error`|mutate a &struct with a JSON unmarshal|
 |`PanicSuppress()`|defer this in Respond() pls|
+|`SendError(c Conn, m Message, err error, rtext string)`|send an error to slack|
