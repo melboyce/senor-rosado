@@ -144,7 +144,7 @@ func (s *Conn) Get() (m Message, err error) {
 		m.Args = words[2:]
 	}
 	if n > 3 {
-		m.SubTail = strings.Join(words[3:], "")
+		m.SubTail = strings.Join(words[3:], " ")
 	}
 
 	return
