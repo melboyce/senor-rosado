@@ -9,6 +9,7 @@ RUN cd /go/src/github.com/weirdtales/senor-rosado && \
     mkdir /plugins && \
     go build -buildmode=plugin -o /plugins/hello.so _cartridges/hello.go && \
     go build -buildmode=plugin -o /plugins/giphy.so _cartridges/giphy.go && \
+    go build -buildmode=plugin -o /plugins/fixer.so _cartridges/fixer.go && \
     go build -buildmode=plugin -o /plugins/weather.so _cartridges/weather.go
 
 WORKDIR /
