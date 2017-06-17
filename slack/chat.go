@@ -19,12 +19,11 @@ func ChatLoop(conn Conn) {
 			log.Fatal(err)
 		}
 
-		log.Printf(">>> %+v\n", msg)
-
 		// TODO support for commands that check all conversation
 		if !msg.Respond {
 			continue
 		}
+		log.Printf(">>> %+v\n", msg)
 
 		// built-ins
 		switch {
@@ -35,7 +34,7 @@ func ChatLoop(conn Conn) {
 		// match input
 		for _, cart := range lib.Carts {
 			re := regexp.MustCompile(cart.Regpatt)
-			m := re.FindStringSubmatch(msg.Full)
+			m := re.FindAllStringSubmatch(msg.Full, -1)
 
 			if len(m) > 0 {
 				resp, err := cart.Plugin.Lookup("Respond")
@@ -45,7 +44,7 @@ func ChatLoop(conn Conn) {
 				}
 
 				// TODO find out if calling a plguin func as a goroutine is sensible
-				go resp.(func(Message, Conn, []string))(msg, conn, m)
+				go resp.(func(Message, Conn, []string))(msg, conn, m[0])
 			}
 		}
 	}
