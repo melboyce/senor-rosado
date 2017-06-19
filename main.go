@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/weirdtales/senor-rosado/cmds"
+	"github.com/weirdtales/senor-rosado/cmdweather"
 	"github.com/weirdtales/senor-rosado/slack"
 )
 
@@ -12,6 +13,18 @@ var commands = []slack.Command{
 	slack.Command{
 		Register: cmds.HelloRegister,
 		Respond:  cmds.HelloRespond,
+	},
+	slack.Command{
+		Register: cmds.GiphyRegister,
+		Respond:  cmds.GiphyRespond,
+	},
+	slack.Command{
+		Register: cmds.FixerRegister,
+		Respond:  cmds.FixerRespond,
+	},
+	slack.Command{
+		Register: cmdweather.Register,
+		Respond:  cmdweather.Respond,
 	},
 }
 

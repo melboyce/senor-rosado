@@ -80,3 +80,14 @@ func (conn Conn) ReplyTo(m *Message, r Reply) (err error) {
 	log.Printf("<<< [%s] %s\n", r.Type, r.Text)
 	return websocket.JSON.Send(conn.Sock, &r)
 }
+
+// ReplyWithErr sends a Reply to a Message and logs an error
+func (conn Conn) ReplyWithErr(m *Message, msg string, err error) {
+	log.Printf("ERR CMD. .ERR: %s", err)
+	r := Reply{}
+	r.Text = msg
+	if r.Text == "" {
+		r.Text = "problema!"
+	}
+	conn.ReplyTo(m, r)
+}
