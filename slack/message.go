@@ -27,9 +27,9 @@ type Reply struct {
 	Text    string `json:"text"`
 	User    string `json:"user"`
 
-	MessageText string
-	Cmd         string
-	Args        []string
+	Message Message
+	Cmd     string
+	Args    []string
 }
 
 var counter uint64
@@ -39,7 +39,7 @@ func GetReply(m Message) (r Reply) {
 	r.ID = atomic.AddUint64(&counter, 1)
 	r.Type = "message"
 	r.Channel = m.Channel
-	r.MessageText = m.Text
+	r.Message = m
 
 	words := strings.Split(m.Text, " ")
 	if len(words) >= 0 {

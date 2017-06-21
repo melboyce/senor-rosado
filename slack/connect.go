@@ -34,12 +34,15 @@ func Connect(token string) (conn Conn, err error) {
 	if err != nil {
 		return
 	}
-	err = attachSock(conn)
+	err = attachSock(&conn)
 	return
 }
 
 // Get ...
 func (conn Conn) Get() (m Message, err error) {
+	if conn.Sock == nil {
+		panic("!!! CONN SOCK MISSING")
+	}
 	err = websocket.JSON.Receive(conn.Sock, &m)
 	return
 }
@@ -65,7 +68,7 @@ func connect(u string) (conn Conn, err error) {
 	return
 }
 
-func attachSock(conn Conn) (err error) {
+func attachSock(conn *Conn) (err error) {
 	log.Printf("-i- CONN SOCK: %s", conn.URL)
 	origin := "https://api.slack.com/"
 	conn.Sock, err = websocket.Dial(conn.URL, "", origin)

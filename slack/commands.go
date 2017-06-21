@@ -47,7 +47,7 @@ func matchCommands(m Message, cmds []Command, replies chan Reply) {
 			continue
 		}
 		matches := cmd.Re.FindAllStringSubmatch(m.Text, -1)
-		if len(matches[0]) > 0 {
+		if len(matches) > 0 && len(matches[0]) > 0 {
 			go cmd.Respond(r, replies)
 		}
 	}
