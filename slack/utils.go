@@ -24,7 +24,7 @@ func GetJSON(u string, t interface{}) (err error) {
 	}
 
 	if r.StatusCode != 200 {
-		err = fmt.Errorf("/!\\ HTTP S%d: %s", r.StatusCode, u)
+		err = fmt.Errorf("!!! HTTP S%d: %s", r.StatusCode, u)
 	}
 	return
 }
