@@ -40,7 +40,8 @@ func Connect(token string) (conn Conn, err error) {
 
 // Get ...
 func (conn Conn) Get() (m Message, err error) {
-	return websocket.JSON.Receive(conn.Sock, &m)
+	err = websocket.JSON.Receive(conn.Sock, &m)
+	return
 }
 
 // Send ...
