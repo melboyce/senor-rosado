@@ -1,4 +1,5 @@
 senor-rosado
+senor-rosado-static
 plugins/*.so
 secrets.env
 .dockerenv

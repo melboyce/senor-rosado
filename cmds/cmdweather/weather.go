@@ -85,7 +85,10 @@ func Respond(r slack.Reply, c chan slack.Reply) {
 		return
 	}
 
-	tz, _ := time.LoadLocation(w.Timezone)
+	tz, err := time.LoadLocation(w.Timezone)
+	if err != nil {
+		panic(err)
+	}
 	t := time.Unix(w.Currently.Time, 0)
 	ts := t.In(tz).Format("15:04")
 
