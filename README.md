@@ -43,7 +43,8 @@ docker run --env-file secrets.env sr
 
 ## Adding Commands
 
-All commands are namespaced in the `cmds/` directory.
+All commands are namespaced in the `cmds/` directory. Take a gander at
+[hello.go](cmds/cmdhello/hello.go) for a simple overview.
 Each command must implement two functions, described below.
 
 
@@ -58,8 +59,8 @@ Each command must implement two functions, described below.
 ### Respond()
 
 `Respond(reply slack.Reply, c chan slack.Reply)` should populate the supplied
-`slack.Reply` with an appropriate payload and then pushes it onto the
-supplied channel.
+`slack.Reply` with an appropriate payload and then push it onto the supplied
+channel.
 
 
 ## Utility Functions
