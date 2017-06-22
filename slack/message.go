@@ -14,8 +14,9 @@ type Message struct {
 	Text    string `json:"text"`
 	User    string `json:"user"`
 
-	SelfID  string
-	Respond bool
+	UserDetail *User
+	SelfID     string
+	Respond    bool
 }
 
 // Reply ...

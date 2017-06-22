@@ -24,7 +24,7 @@ func Loop(conn *Conn, cmds []Command) {
 			continue
 		}
 
-		log.Printf(">>> [%s:%s] %s", m.Type, m.User, m.Text)
+		log.Printf(">>> [%s:@%s] %s", m.Type, m.UserDetail.User.Name, m.Text)
 		m.SelfID = "<@" + conn.Self.ID + ">"
 
 		if strings.HasPrefix(m.Channel, "D") {

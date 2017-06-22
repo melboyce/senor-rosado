@@ -22,16 +22,17 @@ type Conn struct {
 	} `json:"self"`
 	Error string `json:"error"`
 
-	Sock *websocket.Conn
+	Sock  *websocket.Conn
+	token string // TODO not sure if safe
 }
 
 var slackURL = "https://slack.com/api/rtm.connect?token=%s"
 
 // Connect ...
 func Connect(token string) (conn Conn, err error) {
-	u := fmt.Sprintf(slackURL, url.QueryEscape(token))
-	conn, err = connect(u)
-	if err != nil {
+	conn.token = url.QueryEscape(token)
+	u := fmt.Sprintf(slackURL, conn.token)
+	if err = connect(u, &conn); err != nil {
 		return
 	}
 	err = attachSock(&conn)
@@ -44,6 +45,9 @@ func (conn Conn) Get() (m Message, err error) {
 		panic("!!! CONN SOCK MISSING")
 	}
 	err = websocket.JSON.Receive(conn.Sock, &m)
+	if m.Type == "message" {
+		m.UserDetail, err = GetUser(conn.token, m.User)
+	}
 	return
 }
 
@@ -57,13 +61,13 @@ func (conn Conn) Send(reply Reply) (err error) {
 	return websocket.JSON.Send(conn.Sock, &reply)
 }
 
-func connect(u string) (conn Conn, err error) {
+func connect(u string, conn *Conn) (err error) {
 	log.Printf("-i- CONN STRT")
 	if err = GetJSON(u, &conn); err != nil {
 		return
 	}
 	if !conn.OK {
-		err = fmt.Errorf("Conn.OK is false: %+v", conn)
+		err = fmt.Errorf("Conn.OK is false")
 	}
 	return
 }
