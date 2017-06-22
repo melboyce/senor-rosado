@@ -87,6 +87,7 @@ func Respond(r slack.Reply, c chan slack.Reply) {
 
 	tz, err := time.LoadLocation(w.Timezone)
 	if err != nil {
+		// the OS/runtime env is broken; panic is ok
 		panic(err)
 	}
 	t := time.Unix(w.Currently.Time, 0)
