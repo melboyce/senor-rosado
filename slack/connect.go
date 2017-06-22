@@ -47,6 +47,13 @@ func (conn Conn) Get() (m Message, err error) {
 	err = websocket.JSON.Receive(conn.Sock, &m)
 	if m.Type == "message" {
 		m.UserDetail, err = GetUser(conn.token, m.User)
+		if err != nil {
+			return
+		}
+		m.ChannelDetail, err = GetChannel(conn.token, m.Channel)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
@@ -57,7 +64,7 @@ func (conn Conn) Send(reply Reply) (err error) {
 		err = fmt.Errorf("Reply.Text is empty")
 		return
 	}
-	log.Printf("<<< [%s:%s] %s", reply.Type, reply.Channel, reply.Text)
+	log.Printf("<<< [%s:%s] %s", reply.Type, reply.ChannelName, reply.Text)
 	return websocket.JSON.Send(conn.Sock, &reply)
 }
 

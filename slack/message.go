@@ -14,9 +14,10 @@ type Message struct {
 	Text    string `json:"text"`
 	User    string `json:"user"`
 
-	UserDetail *User
-	SelfID     string
-	Respond    bool
+	UserDetail    *User
+	ChannelDetail *Channel
+	SelfID        string
+	Respond       bool
 }
 
 // Reply ...
@@ -28,10 +29,11 @@ type Reply struct {
 	Text    string `json:"text"`
 	User    string `json:"user"`
 
-	Message Message
-	Cmd     string
-	Args    []string
-	Matches [][]string
+	Message     Message
+	ChannelName string
+	Cmd         string
+	Args        []string
+	Matches     [][]string
 }
 
 var counter uint64
@@ -42,6 +44,7 @@ func GetReply(m Message) (r Reply) {
 	r.Type = "message"
 	r.Channel = m.Channel
 	r.Message = m
+	r.ChannelName = m.ChannelDetail.Name
 
 	words := strings.Split(m.Text, " ")
 	if len(words) >= 0 {
