@@ -31,6 +31,7 @@ type Reply struct {
 	Message Message
 	Cmd     string
 	Args    []string
+	Matches [][]string
 }
 
 var counter uint64

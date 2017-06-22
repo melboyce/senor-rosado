@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/weirdtales/senor-rosado/cmds/cmdfixer"
 	"github.com/weirdtales/senor-rosado/cmds/cmdgiphy"
 	"github.com/weirdtales/senor-rosado/cmds/cmdhello"
 	"github.com/weirdtales/senor-rosado/cmds/cmdweather"
@@ -23,6 +24,10 @@ var commands = []slack.Command{
 	slack.Command{
 		Register: cmdgiphy.Register,
 		Respond:  cmdgiphy.Respond,
+	},
+	slack.Command{
+		Register: cmdfixer.Register,
+		Respond:  cmdfixer.Respond,
 	},
 }
 
