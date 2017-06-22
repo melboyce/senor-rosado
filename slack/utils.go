@@ -10,7 +10,7 @@ import (
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
-// GetJSON ...
+// GetJSON is a helper for unmarshals JSON API responses from u into &t.
 func GetJSON(u string, t interface{}) (err error) {
 	log.Printf("-i- HTTP .GET: %s", u)
 	r, err := httpClient.Get(u)

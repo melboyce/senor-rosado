@@ -3,6 +3,11 @@
 [![Build Status](https://travis-ci.org/weirdtales/senor-rosado.svg?branch=master)](https://travis-ci.org/weirdtales/senor-rosado)
 
 
+## TODO
+
+* review exported funcs/vars/structs in package `slack`
+
+
 ## Summary
 
 This is a Slack bot written in Go.

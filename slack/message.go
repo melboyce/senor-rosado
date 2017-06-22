@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-// Message ...
+// Message represents an incoming Slack message.
 type Message struct {
 	ID      uint64 `json:"id"`
 	Type    string `json:"type"`
@@ -20,7 +20,7 @@ type Message struct {
 	Respond       bool
 }
 
-// Reply ...
+// Reply is an outgoing Slack message.
 type Reply struct {
 	ID      uint64 `json:"id"`
 	Type    string `json:"type"`
@@ -38,7 +38,8 @@ type Reply struct {
 
 var counter uint64
 
-// GetReply ...
+// GetReply builds a Reply struct and adds some meta-data to make it useful
+// in commands.
 func GetReply(m Message) (r Reply) {
 	r.ID = atomic.AddUint64(&counter, 1)
 	r.Type = "message"

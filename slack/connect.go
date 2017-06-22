@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// Conn ...
+// Conn is a connection to Slack. It includes a Sock for sending messages.
 type Conn struct {
 	OK   bool   `json:"ok"`
 	URL  string `json:"url"`
@@ -29,7 +29,7 @@ type Conn struct {
 
 var slackURL = "https://slack.com/api/rtm.connect?token=%s"
 
-// Connect ...
+// Connect to slack and return a Conn struct with a connected reply Sock.
 func Connect(token string) (conn Conn, err error) {
 	conn.token = url.QueryEscape(token)
 	u := fmt.Sprintf(slackURL, conn.token)
@@ -40,7 +40,7 @@ func Connect(token string) (conn Conn, err error) {
 	return
 }
 
-// Get ...
+// Get pulls a message from Slack and sets up some meta-data so it can be used.
 func (conn Conn) Get() (m Message, err error) {
 	if conn.Sock == nil {
 		panic("!!! CONN SOCK MISSING")
@@ -57,7 +57,7 @@ func (conn Conn) Get() (m Message, err error) {
 	return
 }
 
-// Send ...
+// Send pushes a Reply on to Slack's RTM queue.
 func (conn Conn) Send(r Reply) (err error) {
 	if r.Text == "" {
 		err = fmt.Errorf("Reply.Text is empty")
@@ -67,6 +67,7 @@ func (conn Conn) Send(r Reply) (err error) {
 	return websocket.JSON.Send(conn.Sock, &r)
 }
 
+// connect performs the actual connection to Slack.
 func connect(u string, conn *Conn) (err error) {
 	log.Printf("-i- CONN STRT")
 	if err = GetJSON(u, &conn); err != nil {
@@ -78,6 +79,7 @@ func connect(u string, conn *Conn) (err error) {
 	return
 }
 
+// attachSock dials a websocket and puts the func in the Conn struct.
 func attachSock(conn *Conn) (err error) {
 	log.Printf("-i- CONN SOCK: %s", conn.URL)
 	origin := "https://api.slack.com/"
@@ -85,6 +87,7 @@ func attachSock(conn *Conn) (err error) {
 	return
 }
 
+// processMessage adds some meta-data to a Message to make it useful.
 func processMessage(conn *Conn, m *Message) (err error) {
 	if m.Type != "message" {
 		return

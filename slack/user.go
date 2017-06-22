@@ -2,7 +2,7 @@ package slack
 
 import "fmt"
 
-// User ...
+// User is a response from the Slack user.info endpoint.
 type User struct {
 	Ok   bool `json:"ok"`
 	User struct {
@@ -32,13 +32,13 @@ type User struct {
 	} `json:"user"`
 }
 
-// UserLookup ...
+// UserLookup memoizes user.info API hits.
 var UserLookup = map[string]*User{}
 
 // TODO programatic URL construction?
 var slackUserURL = "https://slack.com/api/users.info?token=%s&user=%s"
 
-// GetUser ...
+// GetUser returns a pointer to a User.
 func GetUser(token string, id string) (user *User, err error) {
 	if user, ok := UserLookup[id]; ok {
 		return user, nil

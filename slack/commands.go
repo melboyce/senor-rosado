@@ -5,19 +5,22 @@ import (
 	"regexp"
 )
 
-// Command ...
+// Command contains the two functions exported by a command and the compiled
+// regexp used to match lines.
 type Command struct {
 	Register func() (string, string)
 	Respond  func(Reply, chan Reply)
 	Re       *regexp.Regexp
 }
 
-// TODO plugins
+var helpMessage string
+
+// commandProcessor is a goroutine started prior to the main loop.
 func commandProcessor(conn *Conn, msgs chan Message, cmds []Command) {
-	help := "help:\n"
+	helpMessage = "help:\n"
 	for i, cmd := range cmds {
 		p, h := cmd.Register()
-		help += h + "\n"
+		helpMessage += h + "\n"
 		cmds[i].Re = regexp.MustCompile(p)
 	}
 
@@ -37,15 +40,17 @@ func commandProcessor(conn *Conn, msgs chan Message, cmds []Command) {
 	}
 }
 
+// matchCommands checks a Message against the regexps and potentially launches
+// a command as a goroutine in response.
 func matchCommands(m Message, cmds []Command, replies chan Reply) {
 	if !m.Respond {
 		return
 	}
-	r := GetReply(m)
 	for _, cmd := range cmds {
 		if cmd.Re == nil {
 			continue
 		}
+		r := GetReply(m)
 		matches := cmd.Re.FindAllStringSubmatch(m.Text, -1)
 		if len(matches) > 0 && len(matches[0]) > 0 {
 			r.Matches = matches
