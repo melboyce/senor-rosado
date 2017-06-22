@@ -57,7 +57,7 @@ func (conn Conn) Send(reply Reply) (err error) {
 		err = fmt.Errorf("Reply.Text is empty")
 		return
 	}
-	log.Printf("<<< [%s:%d] %s", reply.Type, reply.ID, reply.Text)
+	log.Printf("<<< [%s:%s] %s", reply.Type, reply.Channel, reply.Text)
 	return websocket.JSON.Send(conn.Sock, &reply)
 }
 
