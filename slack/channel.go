@@ -2,7 +2,7 @@ package slack
 
 import "fmt"
 
-// Channel ...
+// Channel represents a channel.info response from the Slack API
 type Channel struct {
 	Ok      bool `json:"ok"`
 	Channel struct {
@@ -41,12 +41,13 @@ type Channel struct {
 	} `json:"channel"`
 }
 
-// ChannelLookup ...
+// ChannelLookup memoizes channel.info calls
 var ChannelLookup = map[string]*Channel{}
 
 var slackChannelURL = "https://slack.com/api/channels.info?token=%s&channel=%s"
 
-// GetChannel ...
+// GetChannel hits Slack's channel.info endpoint, potentially stores the
+// result in ChannelLookup, and returns a pointer to a Channel struct.
 func GetChannel(token string, id string) (channel *Channel, err error) {
 	if channel, ok := ChannelLookup[id]; ok {
 		return channel, nil
