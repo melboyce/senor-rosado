@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/websocket"
 )
@@ -44,28 +45,26 @@ func (conn Conn) Get() (m Message, err error) {
 	if conn.Sock == nil {
 		panic("!!! CONN SOCK MISSING")
 	}
-	err = websocket.JSON.Receive(conn.Sock, &m)
+	if err = websocket.JSON.Receive(conn.Sock, &m); err != nil {
+		return
+	}
+	if err = processMessage(&conn, &m); err != nil {
+		return
+	}
 	if m.Type == "message" {
-		m.UserDetail, err = GetUser(conn.token, m.User)
-		if err != nil {
-			return
-		}
-		m.ChannelDetail, err = GetChannel(conn.token, m.Channel)
-		if err != nil {
-			return
-		}
+		log.Printf(">>> [#%s @%s] %s", m.ChannelDetail.Channel.Name, m.UserDetail.User.Name, m.Text)
 	}
 	return
 }
 
 // Send ...
-func (conn Conn) Send(reply Reply) (err error) {
-	if reply.Text == "" {
+func (conn Conn) Send(r Reply) (err error) {
+	if r.Text == "" {
 		err = fmt.Errorf("Reply.Text is empty")
 		return
 	}
-	log.Printf("<<< [%s:%s] %s", reply.Type, reply.ChannelName, reply.Text)
-	return websocket.JSON.Send(conn.Sock, &reply)
+	log.Printf("<<< [#%s] %s", r.ChannelName, r.Text)
+	return websocket.JSON.Send(conn.Sock, &r)
 }
 
 func connect(u string, conn *Conn) (err error) {
@@ -83,5 +82,32 @@ func attachSock(conn *Conn) (err error) {
 	log.Printf("-i- CONN SOCK: %s", conn.URL)
 	origin := "https://api.slack.com/"
 	conn.Sock, err = websocket.Dial(conn.URL, "", origin)
+	return
+}
+
+func processMessage(conn *Conn, m *Message) (err error) {
+	if m.Type != "message" {
+		return
+	}
+
+	if m.UserDetail, err = GetUser(conn.token, m.User); err != nil {
+		return
+	}
+
+	if m.ChannelDetail, err = GetChannel(conn.token, m.Channel); err != nil {
+		return
+	}
+
+	m.SelfID = "<@" + conn.Self.ID + ">"
+
+	if strings.HasPrefix(m.Channel, "D") {
+		m.Text = m.SelfID + " " + m.Text // hack
+	}
+	words := strings.Split(m.Text, " ")
+	if words[0] == m.SelfID {
+		m.Respond = true
+		m.Text = strings.Join(words[1:], " ")
+	}
+
 	return
 }

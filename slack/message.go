@@ -44,7 +44,7 @@ func GetReply(m Message) (r Reply) {
 	r.Type = "message"
 	r.Channel = m.Channel
 	r.Message = m
-	r.ChannelName = m.ChannelDetail.Name
+	r.ChannelName = m.ChannelDetail.Channel.Name
 
 	words := strings.Split(m.Text, " ")
 	if len(words) >= 0 {

@@ -4,8 +4,41 @@ import "fmt"
 
 // Channel ...
 type Channel struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	Ok      bool `json:"ok"`
+	Channel struct {
+		ID             string `json:"id"`
+		Name           string `json:"name"`
+		IsChannel      bool   `json:"is_channel"`
+		Created        int    `json:"created"`
+		Creator        string `json:"creator"`
+		IsArchived     bool   `json:"is_archived"`
+		IsGeneral      bool   `json:"is_general"`
+		NameNormalized string `json:"name_normalized"`
+		IsShared       bool   `json:"is_shared"`
+		IsOrgShared    bool   `json:"is_org_shared"`
+		IsMember       bool   `json:"is_member"`
+		LastRead       string `json:"last_read"`
+		Latest         struct {
+			Type string `json:"type"`
+			User string `json:"user"`
+			Text string `json:"text"`
+			Ts   string `json:"ts"`
+		} `json:"latest"`
+		UnreadCount        int      `json:"unread_count"`
+		UnreadCountDisplay int      `json:"unread_count_display"`
+		Members            []string `json:"members"`
+		Topic              struct {
+			Value   string `json:"value"`
+			Creator string `json:"creator"`
+			LastSet int    `json:"last_set"`
+		} `json:"topic"`
+		Purpose struct {
+			Value   string `json:"value"`
+			Creator string `json:"creator"`
+			LastSet int    `json:"last_set"`
+		} `json:"purpose"`
+		PreviousNames []interface{} `json:"previous_names"`
+	} `json:"channel"`
 }
 
 // ChannelLookup ...
