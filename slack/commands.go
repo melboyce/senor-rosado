@@ -17,6 +17,7 @@ var helpMessage string
 
 // commandProcessor is a goroutine started prior to the main loop.
 func commandProcessor(conn *Conn, msgs chan Message, cmds []Command) {
+	// TODO implement help command
 	helpMessage = "help:\n"
 	for i, cmd := range cmds {
 		p, h := cmd.Register()
