@@ -33,11 +33,11 @@ type Channel struct {
 	members []User
 }
 
-// TODO cache expiry
+// TODO cache expiry, lock
 var channelCache = make(map[string]Channel)
 
-// NewChannel returns a possibly cached Channel.
-func NewChannel(id string) (c Channel, err error) {
+// GetChannel returns a possibly cached Channel.
+func GetChannel(id string) (c Channel, err error) {
 	c, ok := channelCache[id]
 	if ok {
 		return

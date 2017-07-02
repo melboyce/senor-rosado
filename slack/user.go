@@ -41,11 +41,11 @@ type User struct {
 	name string
 }
 
-// TODO cache expiry
+// TODO cache expiry, lock
 var userCache = make(map[string]User)
 
-// NewUser returns a possibly cached User.
-func NewUser(id string) (u User, err error) {
+// GetUser returns a possibly cached User.
+func GetUser(id string) (u User, err error) {
 	u, ok := userCache[id]
 	if ok {
 		return
@@ -68,7 +68,7 @@ func NewUser(id string) (u User, err error) {
 func getUsers(ids []string) (u []User, err error) {
 	var n User
 	for _, id := range ids {
-		if n, err = NewUser(id); err != nil {
+		if n, err = GetUser(id); err != nil {
 			continue
 		}
 		u = append(u, n)

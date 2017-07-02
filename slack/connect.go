@@ -48,7 +48,7 @@ func NewConn() (conn Conn) {
 	}
 
 	// attach the self User
-	if conn.self, err = NewUser(raw.Self.ID); err != nil {
+	if conn.self, err = GetUser(raw.Self.ID); err != nil {
 		panic(err)
 	}
 	return

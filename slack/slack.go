@@ -22,16 +22,16 @@ func Start(t string) int {
 		in   = make(chan Message)
 		m    Message
 	)
-	go getMessages(conn, in, quit)
+	go getMessages(conn.sock, in, quit)
 
 Loop:
 	for {
 		select {
 		case m = <-in:
-			if m.Type != "message" {
+			if m.Type != "message" || m.Text == "" {
 				continue
 			}
-			log.Printf(">>>  [%s.%s] %s", m.SChannel, m.SUser, m.Text)
+			processMessage(conn, &m)
 		case exit = <-quit:
 			break Loop
 		}
