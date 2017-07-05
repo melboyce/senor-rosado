@@ -39,7 +39,6 @@ func getMessages(sock *websocket.Conn, out chan Message, quit chan int) {
 	for {
 		m = Message{}
 		if err = websocket.JSON.Receive(sock, &m.apiMessage); err != nil {
-			quit <- 1
 			break
 		}
 
@@ -51,6 +50,7 @@ func getMessages(sock *websocket.Conn, out chan Message, quit chan int) {
 
 		out <- m
 	}
+	quit <- 1
 }
 
 func processMessage(conn Conn, m *Message) {

@@ -44,9 +44,18 @@ type User struct {
 // TODO cache expiry, lock
 var userCache = make(map[string]User)
 
+func getCachedUser(id string) (u User, ok bool) {
+	u, ok = userCache[id]
+	return
+}
+
+func setCachedUser(u User) {
+	userCache[u.id] = u
+}
+
 // GetUser returns a possibly cached User.
 func GetUser(id string) (u User, err error) {
-	u, ok := userCache[id]
+	u, ok := getCachedUser(id)
 	if ok {
 		return
 	}
@@ -59,7 +68,7 @@ func GetUser(id string) (u User, err error) {
 		id:   raw.User.ID,
 		name: raw.User.Name,
 	}
-	userCache[id] = u
+	setCachedUser(u)
 	return
 }
 

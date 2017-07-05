@@ -36,9 +36,18 @@ type Channel struct {
 // TODO cache expiry, lock
 var channelCache = make(map[string]Channel)
 
+func getCachedChannel(id string) (c Channel, ok bool) {
+	c, ok = channelCache[id]
+	return
+}
+
+func setCachedChannel(id string, c Channel) {
+	channelCache[id] = c
+}
+
 // GetChannel returns a possibly cached Channel.
 func GetChannel(id string) (c Channel, err error) {
-	c, ok := channelCache[id]
+	c, ok := getCachedChannel(id)
 	if ok {
 		return
 	}
@@ -55,7 +64,7 @@ func GetChannel(id string) (c Channel, err error) {
 		purpose: raw.Channel.Purpose.Value,
 	}
 	c.members, err = getUsers(raw.Channel.Members)
-	channelCache[id] = c
+	setCachedChannel(id, c)
 	return
 }
 
